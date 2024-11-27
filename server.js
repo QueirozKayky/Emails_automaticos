@@ -1,3 +1,5 @@
+require("dotenv").config({ path: "./.env.dev" })
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
@@ -24,18 +26,18 @@ app.post('/register', (req, res) => {
 
 // Configuração do transporte de e-mail
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // Use 'gmail', 'hotmail', ou outro provedor
+    service: process.env.NODEMAILER_SERVICE_TYPE, // Use 'gmail', 'hotmail', ou outro provedor
     auth: {
-        user: 'kaykysousa617@gmail.com', // Seu e-mail
-        pass: 'abcd efgh ijkl mnop' // Senha de aplicativo gerada
+        user: process.env.NODEMAILER_AUTH_USER, // Seu e-mail
+        pass: process.env.NODEMAILER_AUTH_PASSWORD // Senha de aplicativo gerada
     }
 });
 
 // Tarefa agendada para enviar e-mails diariamente às 7h
-cron.schedule('0 7 * * *', () => {
+cron.schedule(process.env.CRON_TIMING, () => {
     users.forEach(user => {
         const mailOptions = {
-            from: 'kaykysousa617@gmail.com', // E-mail do remetente
+            from: process.env.NODEMAILER_AUTH_USER, // E-mail do remetente
             to: user.email, // E-mail do destinatário
             subject: 'Bom dia!', // Assunto do e-mail
             text: `Olá, ${user.name}! Aqui está seu e-mail diário.` // Corpo do e-mail
@@ -53,10 +55,10 @@ cron.schedule('0 7 * * *', () => {
 });
 
 // Teste de envio de e-mail (rota /enviar-email)
-app.get('/enviar-email', (req, res) => {
+app.get('/enviar-email/:email', (req, res) => {
     const mailOptions = {
-        from: 'kaykysousa617@gmail.com', // E-mail do remetente
-        to: 'kaykysousa617@example.com', // E-mail do destinatário (teste)
+        from: process.env.NODEMAILER_AUTH_USER, // E-mail do remetente
+        to: req.params["email"], // E-mail do destinatário (teste)
         subject: 'Bem-vindo ao nosso sistema!',
         text: 'Olá, este é um e-mail enviado automaticamente pelo seu programa em Node.js!'
     };
